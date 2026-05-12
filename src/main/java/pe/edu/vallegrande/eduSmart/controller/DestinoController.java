@@ -1,6 +1,8 @@
 package pe.edu.vallegrande.eduSmart.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.edu.vallegrande.eduSmart.model.Destino;
@@ -33,7 +35,7 @@ public class DestinoController {
     @PostMapping
     public ResponseEntity<Destino> crear(@RequestBody Destino destino) {
         Destino nuevoDestino = destinoService.crear(destino);
-        return ResponseEntity.ok(nuevoDestino);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoDestino);
     }
     
     @PutMapping("/{id}")
@@ -51,5 +53,15 @@ public class DestinoController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        return ResponseEntity.badRequest().body("Error de datos al guardar destino: " + ex.getMostSpecificCause().getMessage());
+    }
+
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleInvalidJson(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        return ResponseEntity.badRequest().body("JSON invalido para destino: " + ex.getMostSpecificCause().getMessage());
     }
 }

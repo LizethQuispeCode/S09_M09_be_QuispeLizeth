@@ -21,6 +21,17 @@ public class DestinoService {
     }
     
     public Destino crear(Destino destino) {
+        // Para columnas IDENTITY en SQL Server, nunca persistir un id enviado por cliente.
+        destino.setId(null);
+
+        // Dejar que SQL Server use su valor por defecto cuando no se envía.
+        if (destino.getDisponible() == null) {
+            destino.setDisponible(true);
+        }
+
+        // Permite que el DEFAULT GETDATE() de la BD se aplique automáticamente.
+        destino.setFechaCreacion(null);
+
         return destinoRepository.save(destino);
     }
     
